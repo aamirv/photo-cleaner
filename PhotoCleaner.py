@@ -1,6 +1,9 @@
+import datetime
 import os
 import re
 from datetime import datetime
+from PIL import Image
+import piexif
 
 class PhotoCleaner:
 
@@ -51,15 +54,14 @@ def process_directory(dir_name):
   # for each photo p
     # process_photo(p, d, l)
 
-def process_photo(file_name):
-  pass
-  # parse createddate from exif
-  # parse takendate from exif
-  # parse location from exif
-  # update createddate for file using exif (i.e., return to old value)
-  # update takendate for exif from file
-  # if location does not exist or is default value
-    # update location for exif from user
+def process_photo(file_name, new_date_time, new_location=None):
+  # https://www.sno.phy.queensu.ca/~phil/exiftool/TagNames/EXIF.html
+  image = Image.open(file_name)
+  exif_dict = piexif.load(image.info["exif"])
+  exif_dict["Exif"][piexif.ExifIFD.DateTimeOriginal] = new_date_time.strftime("%Y:%m:%d %H:%M:%S")
+  #FIXME: mess with location
+  exif_bytes = piexif.dump(exif_dict)
+  image.save(file_name, exif=exif_bytes)
   
 def parse_directory_name(dir_name):
   date_result = None
@@ -86,5 +88,5 @@ def parse_directory_name(dir_name):
   return (date_result, location_result)
 
 if __name__ == "__main__":
-  pc = PhotoCleaner()
-  pc.start()
+  dt = datetime(year=1972, month=1, day=1, hour=0, minute=0, second=1)
+  process_photo("/Users/aamir/Dropbox (Personal)/Photos/1972/197206 Dad in Texas/1972_DadInTexas001.jpg", dt)
