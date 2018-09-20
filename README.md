@@ -1,0 +1,1 @@
+This is a fun little project to edit the exif data in a set of photos.
