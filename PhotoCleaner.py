@@ -141,7 +141,7 @@ class PhotoCleaner:
     logging.debug("Processing photo {} with date {}".format(file_name, dt_string))
 
     if self.DEBUG_MODE:
-      continue
+      return
 
     image = Image.open(file_name)
     exif_dict = piexif.load(image.info["exif"])
