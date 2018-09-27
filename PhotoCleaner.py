@@ -83,6 +83,8 @@ class PhotoCleaner:
     result = ""
     while not os.path.isdir(result) and result.lower != "q":
       result = input("Directory (includes all subdirectories or q to quit)? ")
+      if not os.path.isdir(result):
+        print("Please enter a valid directory.")
     
     if result.lower() ==  "q":
       result = None
@@ -112,25 +114,29 @@ class PhotoCleaner:
         dt = self.ask_user_for_date()
         self.process_directory(dn, dt)
   
-  def process_directory(self, dirname, new_date_time, new_location=None):
+  def process_directory(self, root, new_date_time, new_location=None):
     dt_string = new_date_time.strftime("%Y:%m:%d %H:%M:%S")
-    for (dirpath, _, filenames) in os.walk(dirname):
+    for (dirpath, _, filenames) in os.walk(root):
       autoskip = any(s in dirpath for s in self.PATH_STRINGS_TO_SKIP)
       if autoskip:
         logging.debug('Directory {} skipped - in default skip list.'.format(dirpath))
         continue
 
-      text = input('Process directory {} [n]? '.format(dirpath))
+      text = input('Process directory {} [n, q to stop]? '.format(dirpath))
       if text.lower() != 'y':
+        if text.lower() == 'q':
+          logging.debug('Process directory stopping - user said so.')
+          return
+          
         logging.debug('Directory {} skipped - user said so.'.format(dirpath))
         continue
 
-      logging.debug("Processing dir {} with date {}".format(dirname, dt_string))
+      logging.debug("Processing dir {} with date {}".format(dirpath, dt_string))
       for filename in filenames:
         filepath = os.path.join(dirpath, filename)
         filetype = imghdr.what(filepath)
         if filetype not in ['jpeg']:
-          logging.debug('File {} skipped because filetype is {}.'.format(filepath, filetype))
+          logging.debug('File {} skipped - filetype is {}.'.format(filepath, filetype))
           continue
 
         self.process_photo(filepath, new_date_time, new_location)
@@ -141,6 +147,7 @@ class PhotoCleaner:
     logging.debug("Processing photo {} with date {}".format(file_name, dt_string))
 
     if self.DEBUG_MODE:
+      logging.debug('Not writing exif - debug mode.')
       return
 
     image = Image.open(file_name)
