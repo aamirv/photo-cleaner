@@ -14,6 +14,8 @@ logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %
 class PhotoCleaner:
   DEFAULT_ROOT = "/Users/aamir/Dropbox (Personal)/Photos"
   DEFAULT_TIME_ZONE = "US/Central"
+  PATH_STRINGS_TO_SKIP = ["/Users/aamir/Dropbox (Personal)/Photos/Aamir Virani - 4048", "/Originals"]
+  DEBUG_MODE = True
 
   def __init__(self, root=DEFAULT_ROOT):
     # if root is not legal directory should quit
@@ -68,7 +70,9 @@ class PhotoCleaner:
   def ask_user_for_file(self):
     result = ""
     while not os.path.isfile(result) and result.lower() != "q":
-      result = input("File [q]? ")
+      result = input("File [q to quit]? ")
+      if not os.path.isfile(result):
+        print("Please enter a valid filename.")
     
     if result.lower() == "q":
       result = None
@@ -84,39 +88,6 @@ class PhotoCleaner:
       result = None
 
     return result # will be either None to quit or valid string for dir
-
-  def load_dir_to_skip(self):
-    #try:
-      # stream = file('settings.yaml', 'r')
-      # data = yaml.load (stream)
-      # and then later to print
-      # stream = file('settings.yaml', 'w')
-      # yaml.dump(data, stream)
-      #yaml.load("""
-      #directories_to_process:
-      #processed_directories:
-      #path_strings_to_skip:
-      #""")
-    # catch:
-    #   pass
-    # if a file exists then load it
-    # else make it None
-    self.dir_to_skip = None
-  
-  def create_dir_to_skip(self, ask_user=True):
-    PATH_STRINGS_TO_SKIP = ["/Users/aamir/Dropbox (Personal)/Photos/Aamir Virani - 4048", "/Originals"]
-    self.dir_to_skip = {}
-    for dir_name, _, _ in os.walk(self.root):
-      autoskip = any(s in dir_name for s in PATH_STRINGS_TO_SKIP)
-      if autoskip:
-        self.dir_to_skip[dir_name] = autoskip
-      else:
-        skip = True
-        if ask_user:
-          text = input('Skip {}? [n]'.format(dir_name))
-          skip = 'Y' in text.upper()
-        
-        self.dir_to_skip[dir_name] = skip
   
   def start(self):
     self.show_welcome()
@@ -143,20 +114,35 @@ class PhotoCleaner:
   
   def process_directory(self, dirname, new_date_time, new_location=None):
     dt_string = new_date_time.strftime("%Y:%m:%d %H:%M:%S")
-    for (dirpath, dirnames, filenames) in os.walk(dirname):
+    for (dirpath, _, filenames) in os.walk(dirname):
+      autoskip = any(s in dirpath for s in self.PATH_STRINGS_TO_SKIP)
+      if autoskip:
+        logging.debug('Directory {} skipped - in default skip list.'.format(dirpath))
+        continue
+
+      text = input('Process directory {} [n]? '.format(dirpath))
+      if text.lower() != 'y':
+        logging.debug('Directory {} skipped - user said so.'.format(dirpath))
+        continue
+
       logging.debug("Processing dir {} with date {}".format(dirname, dt_string))
       for filename in filenames:
         filepath = os.path.join(dirpath, filename)
         filetype = imghdr.what(filepath)
-        if filetype in ['jpeg']:
-          self.process_photo(filepath, new_date_time, new_location)
-        else:
-          logging.debug('{} skipped because filetype is {}.'.format(filepath, filetype))
+        if filetype not in ['jpeg']:
+          logging.debug('File {} skipped because filetype is {}.'.format(filepath, filetype))
+          continue
+
+        self.process_photo(filepath, new_date_time, new_location)
 
   # https://www.sno.phy.queensu.ca/~phil/exiftool/TagNames/EXIF.html
   def process_photo(self, file_name, new_date_time, new_location=None):
     dt_string = new_date_time.strftime("%Y:%m:%d %H:%M:%S")
     logging.debug("Processing photo {} with date {}".format(file_name, dt_string))
+
+    if self.DEBUG_MODE:
+      continue
+
     image = Image.open(file_name)
     exif_dict = piexif.load(image.info["exif"])
     exif_dict["Exif"][piexif.ExifIFD.DateTimeOriginal] = dt_string
