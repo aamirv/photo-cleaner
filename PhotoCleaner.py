@@ -6,6 +6,9 @@ import pytz
 from datetime import datetime
 from PIL import Image
 import piexif
+import logging
+
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
 class PhotoCleaner:
   DEFAULT_ROOT = "/Users/aamir/Dropbox (Personal)/Photos"
@@ -123,14 +126,14 @@ class PhotoCleaner:
       if menu == 'q':
         done = True
       elif menu == '1': #photo
-        print("Processing photo")
+        logging.debug('Processing photo.')
         fn = self.ask_user_for_file()
         if fn is None:
           continue
         dt = self.ask_user_for_date()
         self.process_photo(fn, dt)
       elif menu == '2': #directory
-        print("Processing directory")
+        logging.debug('Processing directory.')
         dn = self.ask_user_for_dir()
         if dn is None:
           continue
@@ -139,7 +142,7 @@ class PhotoCleaner:
   
   def process_directory(self, dir_name, new_date_time, new_location=None):
     dt_string = new_date_time.strftime("%Y:%m:%d %H:%M:%S")
-    print("Processing dir {} with date {}".format(dir_name, dt_string))
+    logging.debug("Processing dir {} with date {}".format(dir_name, dt_string))
     # TODO: update given user-based request
     #(folder_date, folder_location) = self.parse_directory_name(dir_name)
     #print(folder_date, folder_location)
@@ -150,7 +153,7 @@ class PhotoCleaner:
   # https://www.sno.phy.queensu.ca/~phil/exiftool/TagNames/EXIF.html
   def process_photo(self, file_name, new_date_time, new_location=None):
     dt_string = new_date_time.strftime("%Y:%m:%d %H:%M:%S")
-    print("Processing photo {} with date {}".format(file_name, dt_string))
+    logging.debug("Processing photo {} with date {}".format(file_name, dt_string))
     #image = Image.open(file_name)
     #exif_dict = piexif.load(image.info["exif"])
     #exif_dict["Exif"][piexif.ExifIFD.DateTimeOriginal] = dt_string
