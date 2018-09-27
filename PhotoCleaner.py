@@ -7,6 +7,7 @@ from datetime import datetime
 from PIL import Image
 import piexif
 import logging
+import imghdr
 
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -140,26 +141,28 @@ class PhotoCleaner:
         dt = self.ask_user_for_date()
         self.process_directory(dn, dt)
   
-  def process_directory(self, dir_name, new_date_time, new_location=None):
+  def process_directory(self, dirname, new_date_time, new_location=None):
     dt_string = new_date_time.strftime("%Y:%m:%d %H:%M:%S")
-    logging.debug("Processing dir {} with date {}".format(dir_name, dt_string))
-    # TODO: update given user-based request
-    #(folder_date, folder_location) = self.parse_directory_name(dir_name)
-    #print(folder_date, folder_location)
-    # get photo list from this directory
-    # for each photo p
-      # process_photo(p, d, l)
+    for (dirpath, dirnames, filenames) in os.walk(dirname):
+      logging.debug("Processing dir {} with date {}".format(dirname, dt_string))
+      for filename in filenames:
+        filepath = os.path.join(dirpath, filename)
+        filetype = imghdr.what(filepath)
+        if filetype in ['jpeg']:
+          self.process_photo(filepath, new_date_time, new_location)
+        else:
+          logging.debug('{} skipped because filetype is {}.'.format(filepath, filetype))
 
   # https://www.sno.phy.queensu.ca/~phil/exiftool/TagNames/EXIF.html
   def process_photo(self, file_name, new_date_time, new_location=None):
     dt_string = new_date_time.strftime("%Y:%m:%d %H:%M:%S")
     logging.debug("Processing photo {} with date {}".format(file_name, dt_string))
-    #image = Image.open(file_name)
-    #exif_dict = piexif.load(image.info["exif"])
-    #exif_dict["Exif"][piexif.ExifIFD.DateTimeOriginal] = dt_string
-    ##FIXME: mess with location
-    #exif_bytes = piexif.dump(exif_dict)
-    #image.save(file_name, exif=exif_bytes)
+    image = Image.open(file_name)
+    exif_dict = piexif.load(image.info["exif"])
+    exif_dict["Exif"][piexif.ExifIFD.DateTimeOriginal] = dt_string
+    #FIXME: mess with location
+    exif_bytes = piexif.dump(exif_dict)
+    image.save(file_name, exif=exif_bytes)
     
   def parse_directory_name(self, dir_name):
     date_result = None
