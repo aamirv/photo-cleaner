@@ -1,3 +1,4 @@
 *.log
+*credentials.json
 build/
 temp-*
