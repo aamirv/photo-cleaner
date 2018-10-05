@@ -13,6 +13,7 @@ import logging
 import os
 import time
 import random
+import requests
 
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -78,6 +79,8 @@ class GooglePhotosClient:
             for item in items:
                 print('{0} ({1})'.format(item['title'].encode('utf8'), item['id']))
     
+    # this API explorer is critical: https://developers.google.com/apis-explorer/#p/discovery/v1/discovery.apis.getRest
+
     # here is what comes back:
     # the YouTube example was helpful: https://github.com/youtube/api-samples/blob/master/python/add_channel_section.py
     # {'id': 'ADrQQk66v4c7mlJ6On0KmITCHbqAStdoecai0iu7wTsn2h92_Sc35HSLFjRJ0RoB4JQPUDZ0OoC8',
@@ -104,8 +107,9 @@ class GooglePhotosClient:
                 _, response = request.next_chunk()
                 if response is not None:
                     if 'id' in response:
-                        logging.debug('Video id "%s" was successfully uploaded.' % response['id'])
-                        return response['id']
+                        upload_token = response['id']
+                        logging.debug('Video id "%s" was successfully uploaded.' % upload_token)
+                        return upload_token
                     else:
                         exit('The upload failed with an unexpected response: %s' % response)
             except HttpError as e:
@@ -141,8 +145,8 @@ class GooglePhotosClient:
             media_body=media_body,
             fields='id').execute()
         
-        upload_id = self._resumable_upload(request)
-        return upload_id
+        upload_token = self._resumable_upload(request)
+        return upload_token
 
     # https://developers.google.com/photos/library/reference/rest/v1/mediaItems/batchCreate
     # album_id should be string
@@ -163,6 +167,27 @@ class GooglePhotosClient:
         logging.debug(results)
 
         # return value will have status we should keep an eye on
+
+    # from StackOverflow - https://stackoverflow.com/questions/51746830/can-upload-photo-when-using-the-google-photos-api
+    # I think discovery API is not returning the uploads() section of the API
+    # Compare to https://developers.google.com/photos/library/guides/upload-media to ensure headers.
+    def upload_alt(self, filepath):
+        filename = os.path.basename(filepath)
+        service = self.get_service()
+        f = open(filepath, 'rb').read()
+
+        url = 'https://photoslibrary.googleapis.com/v1/uploads'
+        headers = {
+            'Authorization': "Bearer " + service._http.request.credentials.access_token,
+            'Content-type': 'application/octet-stream',
+            'X-Goog-Upload-File-Name': filename,
+            'X-Goog-Upload-Protocol': "raw",
+        }
+
+        response = requests.post(url, data=f, headers=headers)
+        upload_token = response.text
+        logging.debug('Upload token: %s' % upload_token)
+        return upload_token
 
 if __name__ == "__main__":
     gpc = GooglePhotosClient()
