@@ -114,7 +114,7 @@ class PhotoCleaner:
         dt = self.ask_user_for_date()
         self.process_directory(dn, dt)
   
-  def process_directory(self, root, new_date_time, new_location=None):
+  def process_directory(self, root, new_date_time):
     dt_string = new_date_time.strftime("%Y:%m:%d %H:%M:%S")
     for (dirpath, _, filenames) in os.walk(root):
       autoskip = any(s in dirpath for s in self.PATH_STRINGS_TO_SKIP)
@@ -139,10 +139,10 @@ class PhotoCleaner:
           logging.debug('File {} skipped - filetype is {}.'.format(filepath, filetype))
           continue
 
-        self.process_photo(filepath, new_date_time, new_location)
+        self.process_photo(filepath, new_date_time)
 
   # https://www.sno.phy.queensu.ca/~phil/exiftool/TagNames/EXIF.html
-  def process_photo(self, file_name, new_date_time, new_location=None):
+  def process_photo(self, file_name, new_date_time):
     dt_string = new_date_time.strftime("%Y:%m:%d %H:%M:%S")
     logging.debug("Processing photo {} with date {}".format(file_name, dt_string))
 
