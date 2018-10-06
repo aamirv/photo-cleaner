@@ -24,96 +24,7 @@ class PhotoCleaner:
 
     self.root = root
     self.dir_to_skip = None
-  
-  def show_welcome(self):
-    print("Welcome to PhotoCleaner!")
-
-  def show_menu(self):
-    print("""Menu:
-    [1] Change created date for a photo
-    [2] Change created date for all files in a directory
-    [q] Quit
-    """)
-  
-  def ask_user_for_menu(self):
-    result = ""
-    while result not in ['q', '1', '2']:
-      result = input('? ').lower()
-    return result
-  
-  def ask_user_for_date(self):
-    done = False
-    result = None
-    while not done:
-      year_str = input("Year? ")
-      month_str = input("Month? ")
-      day_str = input("Day? ")
-      timezone_str = input("Timezone [{}] ?".format(self.DEFAULT_TIME_ZONE))
-      try:
-        year = int(year_str)
-        month = int(month_str)
-        day = int(day_str)
-        tz = pytz.timezone(self.DEFAULT_TIME_ZONE)
-        if not timezone_str or len(timezone_str) == 0:
-          timezone_str = self.DEFAULT_TIME_ZONE
-        else:
-          tz = pytz.timezone(timezone_str)
-        result = datetime(year, month, day, tzinfo=tz)
-        done = True
-      except ValueError:
-        print("Please enter valid numbers.")
-      except pytz.UnknownTimeZoneError:
-        print("Unrecognized time zone.")
-
-    return result
-  
-  def ask_user_for_file(self):
-    result = ""
-    while not os.path.isfile(result) and result.lower() != "q":
-      result = input("File [q to quit]? ")
-      if not os.path.isfile(result):
-        print("Please enter a valid filename.")
     
-    if result.lower() == "q":
-      result = None
-
-    return result # will be either None to quit or valid string for file
-  
-  def ask_user_for_dir(self):
-    result = ""
-    while not os.path.isdir(result) and result.lower != "q":
-      result = input("Directory (includes all subdirectories or q to quit)? ")
-      if not os.path.isdir(result):
-        print("Please enter a valid directory.")
-    
-    if result.lower() ==  "q":
-      result = None
-
-    return result # will be either None to quit or valid string for dir
-  
-  def start(self):
-    self.show_welcome()
-    done = False
-    while not done:
-      self.show_menu()
-      menu = self.ask_user_for_menu()
-      if menu == 'q':
-        done = True
-      elif menu == '1': #photo
-        logging.debug('Processing photo.')
-        fn = self.ask_user_for_file()
-        if fn is None:
-          continue
-        dt = self.ask_user_for_date()
-        self.process_photo(fn, dt)
-      elif menu == '2': #directory
-        logging.debug('Processing directory.')
-        dn = self.ask_user_for_dir()
-        if dn is None:
-          continue
-        dt = self.ask_user_for_date()
-        self.process_directory(dn, dt)
-  
   def process_directory(self, root, new_date_time):
     dt_string = new_date_time.strftime("%Y:%m:%d %H:%M:%S")
     for (dirpath, _, filenames) in os.walk(root):
@@ -180,7 +91,3 @@ class PhotoCleaner:
         # l = convert to gps_coordinates?
 
     return (date_result, location_result)
-
-if __name__ == "__main__":
-  pc = PhotoCleaner()
-  pc.start()
