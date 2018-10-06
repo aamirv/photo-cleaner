@@ -1,13 +1,12 @@
 import datetime
+import imghdr
+import logging
 import os
 import re
-import yaml
-import pytz
 from datetime import datetime
-from PIL import Image
+
 import piexif
-import logging
-import imghdr
+from PIL import Image
 
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
