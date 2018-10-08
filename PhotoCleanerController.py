@@ -12,31 +12,31 @@ logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %
 class PhotoCleanerController:
 
     def __init__(self):
-        self.view = PhotoCleanerView()
-        self.model = PhotoCleaner()
-        self.uploader = GooglePhotosClient()
+        self._view = PhotoCleanerView()
+        self._model = PhotoCleaner()
+        self._uploader = GooglePhotosClient()
     
     def perform_quit(self):
         logging.debug('Quitting...')
     
     def perform_process_photo(self):
         logging.debug('Processing photo.')
-        fn = self.view.ask_user_for_file()
+        fn = self._view.ask_user_for_file()
         if fn is None:
             return
         
-        dt = self.view.ask_user_for_date()
-        self.model.process_photo(fn, dt)
+        dt = self._view.ask_user_for_date()
+        self._model.process_photo(fn, dt)
 
     def process_directory(self, dirpath):
         (default_dt, _) = self.parse_directory_name(dirpath)
-        user_dt = self.view.ask_user_for_date(default_dt)
-        self.model.process_directory(dirpath, user_dt)
+        user_dt = self._view.ask_user_for_date(default_dt)
+        self._model.process_directory(dirpath, user_dt)
 
     def perform_process_directory(self, dirpath=None):
         logging.debug('Processing directory.')
         if dirpath is None:
-            dirpath = self.view.ask_user_for_dir()
+            dirpath = self._view.ask_user_for_dir()
         
         if dirpath is None:
             logging.debug('User canceled processing directory.')
@@ -46,7 +46,7 @@ class PhotoCleanerController:
             
     def perform_walk_and_process_directory(self):
         logging.debug('Walking directory')
-        user_dirpath = self.view.ask_user_for_dir()
+        user_dirpath = self._view.ask_user_for_dir()
         if user_dirpath is None: 
             logging.debug('User canceled walking directory.')
             return
@@ -56,33 +56,33 @@ class PhotoCleanerController:
     
     def perform_login(self):
         logging.debug('Logging into Google Photos...')
-        self.uploader.login_from_commandline()
+        self._uploader.login_from_commandline()
 
     def perform_upload(self, dirpath=None):
         if dirpath is None:
-            dirpath = self.view.ask_user_for_dir()
+            dirpath = self._view.ask_user_for_dir()
         
         if dirpath is None:
             logging.debug('User canceled upload.')
             return
         
         dirname = dirpath.split(os.path.sep)[-1]
-        album_id = self.uploader.create_album_in_library(dirname)
+        album_id = self._uploader.create_album_in_library(dirname)
 
         upload_tokens = []
         filepaths = os.listdir(dirpath)
         for filepath in filepaths:
-            upload_token = self.uploader.upload_alt(filepath)
+            upload_token = self._uploader.upload_alt(filepath)
             upload_tokens.append(upload_token)
 
-        self.uploader.attach_uploads_to_album(album_id, upload_tokens)
+        self._uploader.attach_uploads_to_album(album_id, upload_tokens)
   
     def start(self):
-        self.view.show_welcome()
+        self._view.show_welcome()
         done = False
         while not done:
-            self.view.show_menu()
-            action = self.view.ask_user_for_menu()
+            self._view.show_menu()
+            action = self._view.ask_user_for_menu()
             if action == 'q':
                 self.perform_quit()
                 done = True
