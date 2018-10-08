@@ -188,8 +188,3 @@ class GooglePhotosClient:
         upload_token = response.text
         logging.debug('Upload token: %s' % upload_token)
         return upload_token
-
-if __name__ == "__main__":
-    gpc = GooglePhotosClient()
-    gpc.login_from_commandline()
-    gpc.create_album_in_library('this is a test')
