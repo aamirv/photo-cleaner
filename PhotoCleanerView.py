@@ -18,11 +18,14 @@ class PhotoCleanerView:
         print("Menu:")
         print("[1] Change created date for a photo")
         print("[2] Change created date for all files in a directory")
+        print("[3] Walk directory and change dates")
+        print("[4] Log into Google Photos")
+        print("[5] Upload directory to Google Photos")
         print("[q] Quit")
 
     def ask_user_for_menu(self):
         result = ""
-        while result not in ['q', '1', '2']:
+        while result not in ['q', '1', '2', '3', '4', '5']:
             result = input('? ').lower()
         return result
   
@@ -72,7 +75,7 @@ class PhotoCleanerView:
     def ask_user_for_dir(self):
         result = ""
         while not os.path.isdir(result) and result.lower != "q":
-            result = input("Directory (includes all subdirectories or q to quit)? ")
+            result = input("Directory? ")
             if not os.path.isdir(result):
                 print("Please enter a valid directory.")
     
