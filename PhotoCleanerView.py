@@ -6,6 +6,14 @@ import pytz
 
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
+class CleanerAction:
+    Quit = 'q'
+    ChangePhoto = '1'
+    ChangePhotosInDirectory = '2'
+    WalkDirectory = '3'
+    LoginForUpload = '4'
+    UploadDirectory = '5'
+
 class PhotoCleanerView:
     DEFAULT_TIME_ZONE = "US/Central"
   
@@ -16,23 +24,28 @@ class PhotoCleanerView:
 
     def show_menu(self):
         print("Menu:")
-        print("[1] Change created date for a photo")
-        print("[2] Change created date for all files in a directory")
-        print("[3] Walk directory and change dates")
-        print("[4] Log into Google Photos")
-        print("[5] Upload directory to Google Photos")
-        print("[q] Quit")
+        print("[{}] Change created date for a photo".format(CleanerAction.ChangePhoto))
+        print("[{}] Change created date for all files in a directory".format(CleanerAction.ChangePhotosInDirectory))
+        print("[{}] Walk directory and change dates",format(CleanerAction.WalkDirectory))
+        print("[{}] Log into Google Photos".format(CleanerAction.LoginForUpload))
+        print("[{}] Upload directory to Google Photos".format(CleanerAction.UploadDirectory))
+        print("[{}] Quit".format(CleanerAction.Quit))
 
     def ask_user_for_menu(self):
         result = ""
-        while result not in ['q', '1', '2', '3', '4', '5']:
+        while result not in [CleanerAction.Quit,
+                             CleanerAction.ChangePhoto,
+                             CleanerAction.ChangePhotosInDirectory,
+                             CleanerAction.WalkDirectory,
+                             CleanerAction.LoginForUpload,
+                             CleanerAction.UploadDirectory]:
             result = input('? ').lower()
         return result
   
     def ask_user_for_date(self, default_dt=None):
         if default_dt:
-            is_using_default = input('Use default value ({})? '.format(default_dt))
-            if is_using_default:
+            is_using_default = input('Use default value ({})? [y]'.format(default_dt))
+            if is_using_default.lower() in ['y', '']:
                 return default_dt
 
         done = False

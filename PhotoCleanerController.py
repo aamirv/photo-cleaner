@@ -4,7 +4,7 @@ import re
 from datetime import datetime
 
 from PhotoCleaner import PhotoCleaner
-from PhotoCleanerView import PhotoCleanerView
+from PhotoCleanerView import PhotoCleanerView, CleanerAction
 from GooglePhotosClient import GooglePhotosClient
 
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -83,18 +83,18 @@ class PhotoCleanerController:
         while not done:
             self._view.show_menu()
             action = self._view.ask_user_for_menu()
-            if action == 'q':
+            if action == CleanerAction.Quit:
                 self.perform_quit()
                 done = True
-            elif action == '1': #photo
+            elif action == CleanerAction.ChangePhoto:
                 self.perform_process_photo()
-            elif action == '2': #directory
+            elif action == CleanerAction.ChangePhotosInDirectory:
                 self.perform_process_directory()
-            elif action == '3': #walk directory
+            elif action == CleanerAction.WalkDirectory:
                 self.perform_walk_and_process_directory()
-            elif action == '4': #login
+            elif action == CleanerAction.LoginForUpload:
                 self.perform_login()
-            elif action == '5': #upload dir
+            elif action == CleanerAction.UploadDirectory:
                 self.perform_upload()
 
     def parse_directory_name(self, dirpath):
