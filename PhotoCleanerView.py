@@ -27,7 +27,12 @@ class PhotoCleanerView:
             result = input('? ').lower()
         return result
   
-    def ask_user_for_date(self):
+    def ask_user_for_date(self, default_dt=None):
+        if default_dt:
+            is_using_default = input('Use default value ({})? '.format(default_dt))
+            if is_using_default:
+                return default_dt
+
         done = False
         result = None
         while not done:
