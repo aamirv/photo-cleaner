@@ -20,7 +20,7 @@ class PhotoCleaner:
         filetype = imghdr.what(filepath)
         return filetype in ['jpeg']
 
-    def process_directory(self, dirpath, new_date_time):
+    def update_directory(self, dirpath, new_date_time):
         """
         Updates the JPEGs in a given directory with the given creation date.
 
@@ -43,9 +43,9 @@ class PhotoCleaner:
                 logging.debug('File {} skipped.'.format(filepath))
                 continue
 
-            self.process_photo(filepath, new_date_time)
+            self.update_photo(filepath, new_date_time)
     
-    def process_photo(self, filepath, new_date_time):
+    def update_photo(self, filepath, new_date_time):
         """
         Updates the given JPEG with the given creation date.
 

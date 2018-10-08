@@ -26,12 +26,12 @@ class PhotoCleanerController:
             return
         
         dt = self._view.ask_user_for_date()
-        self._model.process_photo(fn, dt)
+        self._model.update_photo(fn, dt)
 
     def process_directory(self, dirpath):
         (default_dt, _) = self.parse_directory_name(dirpath)
         user_dt = self._view.ask_user_for_date(default_dt)
-        self._model.process_directory(dirpath, user_dt)
+        self._model.update_directory(dirpath, user_dt)
 
     def perform_process_directory(self, dirpath=None):
         logging.debug('Processing directory.')
