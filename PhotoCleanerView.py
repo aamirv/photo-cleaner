@@ -15,12 +15,11 @@ class PhotoCleanerView:
         print("------------------------")
 
     def show_menu(self):
-        print("""Menu:
-        [1] Change created date for a photo
-        [2] Change created date for all files in a directory
-        [q] Quit
-        """)
-  
+        print("Menu:")
+        print("[1] Change created date for a photo")
+        print("[2] Change created date for all files in a directory")
+        print("[q] Quit")
+
     def ask_user_for_menu(self):
         result = ""
         while result not in ['q', '1', '2']:
