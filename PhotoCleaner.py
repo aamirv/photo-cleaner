@@ -10,7 +10,10 @@ from PIL import Image
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
 class PhotoCleaner:
-    PATH_STRINGS_TO_SKIP = ["/Users/aamir/Dropbox (Personal)/Photos/Aamir Virani - 4048", "/Originals"]
+    PATH_STRINGS_TO_SKIP = [
+        "/Users/aamir/Dropbox (Personal)/Photos/Aamir Virani - 4048", 
+        "/Originals"
+    ]
     DEBUG_MODE = True
 
     def is_valid_filetype(self, filepath):
