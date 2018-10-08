@@ -10,18 +10,8 @@ from PIL import Image
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
 class PhotoCleaner:
-    DEFAULT_ROOT = "/Users/aamir/Dropbox (Personal)/Photos"
-    DEFAULT_TIME_ZONE = "US/Central"
     PATH_STRINGS_TO_SKIP = ["/Users/aamir/Dropbox (Personal)/Photos/Aamir Virani - 4048", "/Originals"]
     DEBUG_MODE = True
-
-    def __init__(self, root=DEFAULT_ROOT):
-        # if root is not legal directory should quit
-        if not os.path.isdir(root):
-            raise NotADirectoryError
-
-        self.root = root
-        self.dir_to_skip = None
 
     # TODO change this to simply process the directory, not subs.    
     def process_directory(self, dirpath, new_date_time):
