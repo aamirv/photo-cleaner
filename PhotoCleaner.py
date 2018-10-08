@@ -13,8 +13,14 @@ class PhotoCleaner:
     PATH_STRINGS_TO_SKIP = ["/Users/aamir/Dropbox (Personal)/Photos/Aamir Virani - 4048", "/Originals"]
     DEBUG_MODE = True
 
-    # TODO change this to simply process the directory, not subs.    
     def process_directory(self, dirpath, new_date_time):
+        """
+        Updates the JPEGs in a given directory with the given creation date.
+
+        :param dirpath: directory to process - note this method is NOT recursive
+        :param new_date_time: the date_time to update the images with
+        :returns: None
+        """
         autoskip = any(s in dirpath for s in self.PATH_STRINGS_TO_SKIP)
         if autoskip:
             logging.debug('Directory {} skipped - in default skip list.'.format(dirpath))
@@ -33,17 +39,30 @@ class PhotoCleaner:
 
             self.process_photo(filepath, new_date_time)
 
-    # https://www.sno.phy.queensu.ca/~phil/exiftool/TagNames/EXIF.html
-    def process_photo(self, filename, new_date_time):
+    def process_photo(self, filepath, new_date_time):
+        """
+        Updates the given JPEG with the given creation date.
+
+        Useful link to review: https://www.sno.phy.queensu.ca/~phil/exiftool/TagNames/EXIF.html
+
+        :param filepath: file to process
+        :param new_date_time: the date_time to update the image with
+        :returns: None
+        """
+        filetype = imghdr.what(filepath)
+        if filetype not in ['jpeg']:
+            logging.error('Can only process JPEGs.')
+            return
+
         dt_string = new_date_time.strftime("%Y:%m:%d %H:%M:%S")
-        logging.debug("Processing photo {} with date {}".format(filename, dt_string))
+        logging.debug("Processing photo {} with date {}".format(filepath, dt_string))
 
         if self.DEBUG_MODE:
             logging.debug('Not writing exif - debug mode.')
             return
 
-        image = Image.open(filename)
+        image = Image.open(filepath)
         exif_dict = piexif.load(image.info["exif"])
         exif_dict["Exif"][piexif.ExifIFD.DateTimeOriginal] = dt_string
         exif_bytes = piexif.dump(exif_dict)
-        image.save(filename, exif=exif_bytes)
+        image.save(filepath, exif=exif_bytes)
