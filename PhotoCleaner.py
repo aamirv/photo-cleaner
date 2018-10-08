@@ -13,6 +13,10 @@ class PhotoCleaner:
     PATH_STRINGS_TO_SKIP = ["/Users/aamir/Dropbox (Personal)/Photos/Aamir Virani - 4048", "/Originals"]
     DEBUG_MODE = True
 
+    def is_valid_filetype(self, filepath):
+        filetype = imghdr.what(filepath)
+        return filetype in ['jpeg']
+
     def process_directory(self, dirpath, new_date_time):
         """
         Updates the JPEGs in a given directory with the given creation date.
@@ -32,13 +36,12 @@ class PhotoCleaner:
         filenames = os.listdir(dirpath)
         for filename in filenames:
             filepath = os.path.join(dirpath, filename)
-            filetype = imghdr.what(filepath)
-            if filetype not in ['jpeg']:
-                logging.debug('File {} skipped - filetype is {}.'.format(filepath, filetype))
+            if not self.is_valid_filetype(filepath):
+                logging.debug('File {} skipped.'.format(filepath))
                 continue
 
             self.process_photo(filepath, new_date_time)
-
+    
     def process_photo(self, filepath, new_date_time):
         """
         Updates the given JPEG with the given creation date.
@@ -49,8 +52,7 @@ class PhotoCleaner:
         :param new_date_time: the date_time to update the image with
         :returns: None
         """
-        filetype = imghdr.what(filepath)
-        if filetype not in ['jpeg']:
+        if not self.is_valid_filetype(filepath):
             logging.error('Can only process JPEGs.')
             return
 
