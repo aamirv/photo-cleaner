@@ -138,3 +138,7 @@ class PhotoCleanerController:
                 location_result = dirname[index_starting_descriptor:].lstrip().rstrip()
 
         return (date_result, location_result)
+
+if __name__ == "__main__":
+    pcc = PhotoCleanerController()
+    pcc.start()
