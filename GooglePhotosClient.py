@@ -110,6 +110,7 @@ class GooglePhotosClient:
 
         service = self.get_service() # service is discovery.Resource()
         results = service.albums().create(body=body).execute() # pylint: disable=no-member
+        logging.debug("Created {} in Google Photos: ID {}".format(title, results))
 
         return results
 
