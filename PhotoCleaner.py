@@ -17,6 +17,12 @@ class PhotoCleaner:
     DEBUG_MODE = True
 
     def is_valid_filetype(self, filepath):
+        """
+        Returns True if given filepath is a file and ends with jpeg, False otherwise.
+        """
+        if not os.path.isfile(filepath):
+            return False
+
         filetype = imghdr.what(filepath)
         return filetype in ['jpeg']
 
