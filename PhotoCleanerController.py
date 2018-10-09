@@ -98,7 +98,24 @@ class PhotoCleanerController:
             elif action == CleanerAction.UploadDirectory:
                 self.perform_upload()
 
+    def verify_year(self, dt):
+        MIN_ALLOWED_YEAR = 1900
+        MAX_ALLOWED_YEAR = 2050
+        if dt.year < MIN_ALLOWED_YEAR or dt.year > MAX_ALLOWED_YEAR:
+            raise ValueError("Unsupported year {}".format(dt.year))
+
     def parse_directory_name(self, dirpath):
+        """
+        Takes a given directory path and returns a tuple if it has a date and location in its name.
+
+        If the directory path has no date information, None is returned.
+        If it only has a partial (like just year or just year and month), that is all that's returned
+
+        NOTE: this does not validate the directory path itself
+
+        :returns (date_result, location_result): datetime and string suffix for location
+        :raises ValueError: if the name is not returning a valid datetime or the year is out of range
+        """
         date_result = None
         location_result = None
         dirname = dirpath.split(os.path.sep)[-1]
@@ -113,7 +130,9 @@ class PhotoCleanerController:
             elif len(s) == 8 and s.isdigit:
                 date_result = datetime.strptime(time_match.group(0), "%Y%m%d")
             else:
-                print("ERROR: unsupported date format")
+                raise ValueError("Unsupported date format")
+            
+            self.verify_year(date_result)
     
             index_starting_descriptor = time_match.span()[0]+ time_match.span()[1]
             if index_starting_descriptor < len(dirname):
