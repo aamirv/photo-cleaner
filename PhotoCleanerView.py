@@ -13,6 +13,7 @@ class CleanerAction:
     WalkDirectory = '3'
     LoginForUpload = '4'
     UploadDirectory = '5'
+    Logout = '6'
 
 class PhotoCleanerView:
     DEFAULT_TIME_ZONE = "US/Central"
@@ -29,6 +30,7 @@ class PhotoCleanerView:
         print("[{}] Walk directory and change dates".format(CleanerAction.WalkDirectory))
         print("[{}] Log into Google Photos".format(CleanerAction.LoginForUpload))
         print("[{}] Upload directory to Google Photos".format(CleanerAction.UploadDirectory))
+        print("[{}] Logout of Google Photos".format(CleanerAction.Logout))
         print("[{}] Quit".format(CleanerAction.Quit))
 
     def ask_user_for_menu(self):
@@ -39,7 +41,8 @@ class PhotoCleanerView:
                              CleanerAction.ChangePhotosInDirectory,
                              CleanerAction.WalkDirectory,
                              CleanerAction.LoginForUpload,
-                             CleanerAction.UploadDirectory]:
+                             CleanerAction.UploadDirectory,
+                             CleanerAction.Logout]:
             result = input('? ').lower()
         return result
   

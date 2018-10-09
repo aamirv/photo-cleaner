@@ -47,7 +47,7 @@ class GooglePhotosClient:
     
     # command line discussion here: https://developers.google.com/api-client-library/python/guide/aaa_oauth
     def login_from_commandline(self):
-        if (self._user_credentials):
+        if self._user_credentials:
             http = httplib2.Http()
             http = self._user_credentials.authorize(http)
             self._user_credentials.refresh(http)
@@ -64,6 +64,16 @@ class GooglePhotosClient:
         flags = parser.parse_args()
 
         self._user_credentials = tools.run_flow(flow, self._storage, flags)
+    
+    def logout(self):
+        if not self._user_credentials:
+            logging.debug('User was not logged in so cannot log out.')
+            return
+
+        logging.debug('Logging out...')
+        http = httplib2.Http()
+        http = self._user_credentials.authorize(http)
+        self._user_credentials.revoke(http)
 
     def get_service(self):
         http = httplib2.Http()

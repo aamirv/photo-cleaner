@@ -57,6 +57,10 @@ class PhotoCleanerController:
     def perform_login(self):
         logging.debug('Logging into Google Photos...')
         self._uploader.login_from_commandline()
+    
+    def perform_logout(self):
+        logging.debug('Logging out of Google Photos...')
+        self._uploader.logout()
 
     def perform_upload(self, dirpath=None):
         if dirpath is None:
@@ -68,6 +72,7 @@ class PhotoCleanerController:
         
         dirname = dirpath.split(os.path.sep)[-1]
         album_id = self._uploader.create_album_in_library(dirname)
+        logging.debug("Created {} in Google Photos: ID {}".format(dirname, album_id))
 
         upload_tokens = []
         filepaths = sorted(os.listdir(dirpath))
@@ -96,6 +101,8 @@ class PhotoCleanerController:
                 self.perform_login()
             elif action == CleanerAction.UploadDirectory:
                 self.perform_upload()
+            elif action == CleanerAction.Logout:
+                self.perform_logout()
 
     def verify_year(self, dt):
         MIN_ALLOWED_YEAR = 1900
