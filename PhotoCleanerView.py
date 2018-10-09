@@ -26,7 +26,7 @@ class PhotoCleanerView:
         print("Menu:")
         print("[{}] Change created date for a photo".format(CleanerAction.ChangePhoto))
         print("[{}] Change created date for all files in a directory".format(CleanerAction.ChangePhotosInDirectory))
-        print("[{}] Walk directory and change dates",format(CleanerAction.WalkDirectory))
+        print("[{}] Walk directory and change dates".format(CleanerAction.WalkDirectory))
         print("[{}] Log into Google Photos".format(CleanerAction.LoginForUpload))
         print("[{}] Upload directory to Google Photos".format(CleanerAction.UploadDirectory))
         print("[{}] Quit".format(CleanerAction.Quit))
