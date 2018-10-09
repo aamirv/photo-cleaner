@@ -47,6 +47,14 @@ class GooglePhotosClient:
     
     # command line discussion here: https://developers.google.com/api-client-library/python/guide/aaa_oauth
     def login_from_commandline(self):
+        if (self._user_credentials):
+            http = httplib2.Http()
+            http = self._user_credentials.authorize(http)
+            self._user_credentials.refresh(http)
+            logging.debug('User has already logged in once so refreshing...')
+            return
+
+        logging.debug('User has never logged in so asking...')
         flow = flow_from_clientsecrets(self.CLIENT_CREDENTIALS_FILE,
             scope=self.SCOPES,
             redirect_uri=self.REDIRECT_URI)
