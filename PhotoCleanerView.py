@@ -32,6 +32,7 @@ class PhotoCleanerView:
         print("[{}] Quit".format(CleanerAction.Quit))
 
     def ask_user_for_menu(self):
+        """ Asks user to choose a valid menu option. """
         result = ""
         while result not in [CleanerAction.Quit,
                              CleanerAction.ChangePhoto,
@@ -43,6 +44,13 @@ class PhotoCleanerView:
         return result
   
     def ask_user_for_date(self, default_dt=None):
+        """
+        Asks user for date and returns it.  If you pass a default value, it will
+        ask user if it should be used.
+
+        :param default_dt: default datetime to use if user says so
+        :returns: datetime
+        """
         if default_dt:
             is_using_default = input('Use default value ({})? [y]'.format(default_dt))
             if is_using_default.lower() in ['y', '']:
@@ -74,6 +82,11 @@ class PhotoCleanerView:
         return result
   
     def ask_user_for_file(self):
+        """
+        Asks user for filename, and returns validated filename or None if user cancels.
+
+        :returns: None
+        """
         result = ""
         while not os.path.isfile(result) and result.lower() != "q":
             result = input("File [q to quit]? ")
@@ -83,9 +96,14 @@ class PhotoCleanerView:
         if result.lower() == "q":
             result = None
 
-        return result # will be either None to quit or valid string for file
+        return result
   
     def ask_user_for_dir(self):
+        """
+        Asks user for directory, and returns validated directory or None if user cancels.
+
+        :returns: None
+        """
         result = ""
         while not os.path.isdir(result) and result.lower != "q":
             result = input("Directory? ")
@@ -95,4 +113,4 @@ class PhotoCleanerView:
         if result.lower() ==  "q":
             result = None
 
-        return result # will be either None to quit or valid string for dir
+        return result
