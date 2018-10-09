@@ -36,7 +36,7 @@ class PhotoCleaner:
         dt_string = new_date_time.strftime("%Y:%m:%d %H:%M:%S")
         logging.debug("Processing dir {} with date {}".format(dirpath, dt_string))
 
-        filenames = os.listdir(dirpath)
+        filenames = sorted(os.listdir(dirpath))
         for filename in filenames:
             filepath = os.path.join(dirpath, filename)
             if not self.is_valid_filetype(filepath):
