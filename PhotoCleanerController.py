@@ -69,7 +69,6 @@ class PhotoCleanerController:
         dirname = dirpath.split(os.path.sep)[-1]
         album_id = self._uploader.create_album_in_library(dirname)
 
-        # TODO: upload in order of filename
         upload_tokens = []
         filepaths = sorted(os.listdir(dirpath))
         for filepath in filepaths:
