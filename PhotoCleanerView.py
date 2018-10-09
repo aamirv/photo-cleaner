@@ -80,23 +80,26 @@ class PhotoCleanerView:
                 print("Unrecognized time zone.")
 
         return result
-  
+
+    def __ask_user_for_valid_X(self, descriptor, validating_method):
+        result = ""
+        while not validating_method(result) and result.lower() != "q":
+            result = input("{} [q to quit]? ".format(descriptor.capitalize()))
+            if not validating_method(result):
+                print("Please enter a valid {}.".format(descriptor))
+    
+        if result.lower() == "q":
+            result = None
+
+        return result
+
     def ask_user_for_file(self):
         """
         Asks user for filename, and returns validated filename or None if user cancels.
 
         :returns: None
         """
-        result = ""
-        while not os.path.isfile(result) and result.lower() != "q":
-            result = input("File [q to quit]? ")
-            if not os.path.isfile(result):
-                print("Please enter a valid filename.")
-    
-        if result.lower() == "q":
-            result = None
-
-        return result
+        return self.__ask_user_for_valid_X("filename", os.path.isfile)
   
     def ask_user_for_dir(self):
         """
@@ -104,13 +107,4 @@ class PhotoCleanerView:
 
         :returns: None
         """
-        result = ""
-        while not os.path.isdir(result) and result.lower != "q":
-            result = input("Directory? ")
-            if not os.path.isdir(result):
-                print("Please enter a valid directory.")
-    
-        if result.lower() ==  "q":
-            result = None
-
-        return result
+        return self.__ask_user_for_valid_X("directory", os.path.isdir)
