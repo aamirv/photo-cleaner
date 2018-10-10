@@ -62,6 +62,16 @@ class PhotoCleanerController:
         logging.debug('Logging out of Google Photos...')
         self._uploader.logout()
 
+    def process_upload_directory(self, dirpath):
+        upload_tokens = []
+        filenames = sorted(os.listdir(dirpath))
+        for filename in filenames:
+            filepath = os.path.join(dirpath, filename)
+            upload_token = self._uploader.upload_alt(filepath)
+            upload_tokens.append(upload_token)
+        
+        return upload_tokens
+
     def perform_upload(self, dirpath=None):
         if dirpath is None:
             dirpath = self._view.ask_user_for_dir()
@@ -71,17 +81,31 @@ class PhotoCleanerController:
             return
         
         dirname = dirpath.split(os.path.sep)[-1]
-        album_id = self._uploader.create_album_in_library(dirname)
-        logging.debug("Created {} in Google Photos: ID {}".format(dirname, album_id))
+        album_data = self._uploader.create_album_in_library(dirname)
 
-        upload_tokens = []
-        filepaths = sorted(os.listdir(dirpath))
-        for filepath in filepaths:
-            upload_token = self._uploader.upload_alt(filepath)
-            upload_tokens.append(upload_token)
+        upload_tokens = self.process_upload_directory(dirpath)
 
-        self._uploader.attach_uploads_to_album(album_id, upload_tokens)
-  
+        self._uploader.attach_uploads_to_album(album_data['id'], upload_tokens)
+    
+    def perform_full_process_on_one_directory(self):
+        dirpath = self._view.ask_user_for_dir()
+        if dirpath is None:
+            return
+
+        dirname = dirpath.split(os.path.sep)[-1]
+
+        self.perform_process_directory(dirpath)
+        if not self._view.is_okay_to_continue("Create album in Google {}?".format(dirname)):
+            return
+
+        album_data = self._uploader.create_album_in_library(dirname)
+
+        if not self._view.is_okay_to_continue("Upload photos to Google?"):
+            return
+
+        upload_tokens = self.process_upload_directory(dirpath)
+        self._uploader.attach_uploads_to_album(album_data['id'], upload_tokens)
+
     def start(self):
         self._view.show_welcome()
         done = False
@@ -101,6 +125,8 @@ class PhotoCleanerController:
                 self.perform_login()
             elif action == CleanerAction.UploadDirectory:
                 self.perform_upload()
+            elif action == CleanerAction.FullProcessOneDirectory:
+                self.perform_full_process_on_one_directory()
             elif action == CleanerAction.Logout:
                 self.perform_logout()
 

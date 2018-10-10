@@ -14,6 +14,7 @@ class CleanerAction:
     LoginForUpload = '4'
     UploadDirectory = '5'
     Logout = '6'
+    FullProcessOneDirectory = '7'
 
 class PhotoCleanerView:
     DEFAULT_TIME_ZONE = "US/Central"
@@ -31,6 +32,7 @@ class PhotoCleanerView:
         print("[{}] Log into Google Photos".format(CleanerAction.LoginForUpload))
         print("[{}] Upload directory to Google Photos".format(CleanerAction.UploadDirectory))
         print("[{}] Logout of Google Photos".format(CleanerAction.Logout))
+        print("[{}] Full process a directory".format(CleanerAction.FullProcessOneDirectory))
         print("[{}] Quit".format(CleanerAction.Quit))
 
     def ask_user_for_menu(self):
@@ -42,7 +44,8 @@ class PhotoCleanerView:
                              CleanerAction.WalkDirectory,
                              CleanerAction.LoginForUpload,
                              CleanerAction.UploadDirectory,
-                             CleanerAction.Logout]:
+                             CleanerAction.Logout,
+                             CleanerAction.FullProcessOneDirectory]:
             result = input('? ').lower()
         return result
   
@@ -111,3 +114,12 @@ class PhotoCleanerView:
         :returns: None
         """
         return self.__ask_user_for_valid_X("directory", os.path.isdir)
+    
+    def is_okay_to_continue(self, prompt=None):
+        """ Returns True if user says okay to continue, with optional descriptive message. """
+        if prompt is None:
+            prompt = "Continue?"
+
+        prompt = prompt + " [y] "
+        result = input(prompt)
+        return result.lower() in ['y', '']
