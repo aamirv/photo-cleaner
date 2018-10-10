@@ -14,7 +14,7 @@ class PhotoCleaner:
         "/Users/aamir/Dropbox (Personal)/Photos/Aamir Virani - 4048", 
         "/Originals"
     ]
-    DEBUG_MODE = True
+    DEBUG_MODE = False
 
     def is_valid_filetype(self, filepath):
         """
@@ -64,6 +64,16 @@ class PhotoCleaner:
         if not self.is_valid_filetype(filepath):
             logging.error('Can only process JPEGs.')
             return
+
+        # Google Photos seems to treat 00:00:00 with no timezone as a different timezone
+        # which results in offset days from what I wanted... so I'll just set default
+        # time of day to 12pm so that the dates work out.
+        # If you passed in a time, though, this should keep it.
+        if new_date_time.hour == 0 and new_date_time.minute == 0 and new_date_time.second == 0:
+            new_date_time = datetime(new_date_time.year, 
+                                     new_date_time.month, 
+                                     new_date_time.day, 
+                                     12, 0, 0)
 
         dt_string = new_date_time.strftime("%Y:%m:%d %H:%M:%S")
         logging.debug("Processing photo {} with date {}".format(filepath, dt_string))
