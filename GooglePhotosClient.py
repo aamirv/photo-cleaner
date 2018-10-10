@@ -167,25 +167,32 @@ class GooglePhotosClient:
         upload_token = self._resumable_upload(request)
         return upload_token
 
+    def chunker(self, seq, size):
+        return (seq[pos:pos + size] for pos in range(0, len(seq), size))
+
     # https://developers.google.com/photos/library/reference/rest/v1/mediaItems/batchCreate
     # album_id should be string
     # media_items should be list of media_items objects: dict of description (if needed) and simpleMediaItem, which is just dict of uploadToken
     def attach_uploads_to_album(self, album_id, upload_tokens):
-        new_media_items = dict()
-        for upload_token in upload_tokens:
-            #new_media_items['description'] = '' # I don't think we need this
-            new_media_items['simpleMediaItem'] = dict(uploadToken=upload_token)
-        body = dict(
-            albumId=album_id, 
-            newMediaItems=new_media_items) # not including position so will go at end
-        
-        service = self.get_service()
-        results = service.mediaItems().batchCreate(body=body).execute() # pylint: disable=no-member
-        # returns array of newMediaItemResults = dict(uploadToken, status, mediaItem)
-        # where status is dict(code, message, details)
-        logging.debug(results)
+        MAX_ATTACHMENTS_PER_REQUEST = 50
 
-        # return value will have status we should keep an eye on
+        # break upload_tokens into buckets of 50 due to Google Photos API limitation
+        for t_chunk in self.chunker(upload_tokens, MAX_ATTACHMENTS_PER_REQUEST):
+            new_media_items = []
+            for t in t_chunk:
+                new_media_items.append(dict(simpleMediaItem=dict(uploadToken=t)))
+
+            body = dict(
+                albumId=album_id, 
+                newMediaItems=new_media_items) # not including position so will go at end
+            
+            service = self.get_service()
+            results = service.mediaItems().batchCreate(body=body).execute() # pylint: disable=no-member
+            # returns array of newMediaItemResults = dict(uploadToken, status, mediaItem)
+            # where status is dict(code, message, details)
+
+            # TODO return value will have status we should keep an eye on
+            logging.debug(results)
 
     # from StackOverflow - https://stackoverflow.com/questions/51746830/can-upload-photo-when-using-the-google-photos-api
     # I think discovery API is not returning the uploads() section of the API
