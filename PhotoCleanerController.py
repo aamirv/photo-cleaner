@@ -8,6 +8,7 @@ from PhotoCleanerView import PhotoCleanerView, CleanerAction
 from GooglePhotosClient import GooglePhotosClient
 
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.getLogger('googleapiclient').setLevel(logging.CRITICAL)
 
 class PhotoCleanerController:
 
@@ -51,8 +52,10 @@ class PhotoCleanerController:
             logging.debug('User canceled walking directory.')
             return
         
-        for (dirpath, _, _) in os.walk(user_dirpath):
-            self.process_directory(dirpath)
+        for (dirpath, _, filenames) in os.walk(user_dirpath):
+            if not self._view.is_okay_to_continue("Process {} ({} files)?".format(dirpath, len(filenames))):
+                continue
+            self.perform_full_process_on_one_directory(dirpath, is_asking=False)
     
     def perform_login(self):
         logging.debug('Logging into Google Photos...')
@@ -87,20 +90,22 @@ class PhotoCleanerController:
 
         self._uploader.attach_uploads_to_album(album_data['id'], upload_tokens)
     
-    def perform_full_process_on_one_directory(self):
-        dirpath = self._view.ask_user_for_dir()
+    def perform_full_process_on_one_directory(self, dirpath=None, is_asking=True):
+        if dirpath is None:
+            dirpath = self._view.ask_user_for_dir()
+
         if dirpath is None:
             return
 
         dirname = dirpath.split(os.path.sep)[-1]
 
         self.perform_process_directory(dirpath)
-        if not self._view.is_okay_to_continue("Create album in Google {}?".format(dirname)):
+        if is_asking and not self._view.is_okay_to_continue("Create album in Google {}?".format(dirname)):
             return
 
         album_data = self._uploader.create_album_in_library(dirname)
 
-        if not self._view.is_okay_to_continue("Upload photos to Google?"):
+        if is_asking and not self._view.is_okay_to_continue("Upload photos to Google?"):
             return
 
         upload_tokens = self.process_upload_directory(dirpath)

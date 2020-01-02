@@ -28,7 +28,7 @@ class PhotoCleanerView:
         print("Menu:")
         print("[{}] Change created date for a photo".format(CleanerAction.ChangePhoto))
         print("[{}] Change created date for all files in a directory".format(CleanerAction.ChangePhotosInDirectory))
-        print("[{}] Walk directory and change dates".format(CleanerAction.WalkDirectory))
+        print("[{}] Walk directory and full process".format(CleanerAction.WalkDirectory))
         print("[{}] Log into Google Photos".format(CleanerAction.LoginForUpload))
         print("[{}] Upload directory to Google Photos".format(CleanerAction.UploadDirectory))
         print("[{}] Logout of Google Photos".format(CleanerAction.Logout))
@@ -73,13 +73,12 @@ class PhotoCleanerView:
                 year = int(year_str)
                 month = int(month_str)
                 day = int(day_str)
-                tz = pytz.timezone(self.DEFAULT_TIME_ZONE)
                 if not timezone_str or len(timezone_str) == 0:
                     timezone_str = self.DEFAULT_TIME_ZONE
-                else:
-                    tz = pytz.timezone(timezone_str)
-                    result = datetime(year, month, day, tzinfo=tz)
-                    done = True
+
+                tz = pytz.timezone(timezone_str)
+                result = datetime(year, month, day, tzinfo=tz)
+                done = True
             except ValueError:
                 print("Please enter valid numbers.")
             except pytz.UnknownTimeZoneError:
