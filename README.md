@@ -21,6 +21,9 @@ Menu looks like this with related commands you can run:
 
 The main one to use is `[7] - full process a directory`.
 
+You can also do `[3] Walk directory and full process]`, which will walk through each directory
+and full process. You can skip directories as you will be asked about each one.
+
 When you are asked to upload a directory, then, do not escape
 characters, just type it out:
 
